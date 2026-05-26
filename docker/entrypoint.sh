@@ -48,6 +48,21 @@ if [ "$NEED_INITIAL_SCRAPE" = true ]; then
   echo "🆕 Banco de dados vazio ou sem jogos detectado. Executando scrape inicial em background..."
   (cd /app && node /app/dist-scripts/scripts/nightly-scrape.js >> /var/log/nightly-scrape.log 2>&1) &
   echo "🔄 Scrape inicial rodando em background (PID: $!)"
+else
+  # Se o banco já possui jogos, fazemos um scrape rápido focado em background apenas do Hero Section para atualizá-lo de imediato com o site deles
+  echo "🔥 Banco existente detectado. Sincronizando Hero Section em background..."
+  (cd /app && node -e "
+    const { scrapeHeroSlugs, scrapeGameDetail } = require('./dist-scripts/src/lib/scraper');
+    const { setScrapeMetaValue } = require('./dist-scripts/src/lib/db');
+    scrapeHeroSlugs().then(async slugs => {
+      if (slugs && slugs.length > 0) {
+        setScrapeMetaValue('hero_slugs', JSON.stringify(slugs));
+        for (const slug of slugs) {
+          try { await scrapeGameDetail(slug); } catch(e) {}
+        }
+      }
+    }).catch(() => {});
+  " >/dev/null 2>&1 &)
 fi
 
 # Iniciar o Next.js standalone server
