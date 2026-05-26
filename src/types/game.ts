@@ -1,3 +1,11 @@
+export interface GameComment {
+  author: string;
+  date: string;
+  content: string;
+  likes?: number;
+  replies?: GameComment[];
+}
+
 export interface Game {
   id?: number;
   slug: string;
@@ -16,6 +24,8 @@ export interface Game {
   screenshots?: string | null;
   system_requirements?: string | null;
   trailer_url?: string | null;
+  comments?: string | null;
   created_at?: string;
   updated_at?: string;
 }
+

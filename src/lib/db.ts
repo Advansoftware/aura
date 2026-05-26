@@ -40,6 +40,7 @@ function initDb() {
       screenshots TEXT,
       system_requirements TEXT,
       trailer_url TEXT,
+      comments TEXT,
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
     );
@@ -50,6 +51,17 @@ function initDb() {
     );
   `);
   
+  // Adiciona a coluna comments dinamicamente para bancos de dados existentes
+  try {
+    db!.prepare('SELECT comments FROM games LIMIT 1').get();
+  } catch (e) {
+    try {
+      db!.prepare('ALTER TABLE games ADD COLUMN comments TEXT').run();
+    } catch (err) {
+      console.error('Erro ao adicionar coluna comments:', err);
+    }
+  }
+
   // Remoção preventiva do launcher dos assinantes, pois não é um jogo
   db!.prepare("DELETE FROM games WHERE slug = 'steam-verde-launcher-assinantes'").run();
 
@@ -73,10 +85,10 @@ export type { Game };
 export function upsertGame(game: Omit<Game, 'id' | 'created_at' | 'updated_at'>) {
   const d = getDb();
   const stmt = d.prepare(`
-    INSERT INTO games (slug, title, image, description, file_size, version, download_url, magnet_url, categories, author, views, downloads_count, update_date, screenshots, system_requirements, trailer_url, updated_at)
-    VALUES (@slug, @title, @image, @description, @file_size, @version, @download_url, @magnet_url, @categories, @author, 0, @downloads_count, @update_date, @screenshots, @system_requirements, @trailer_url, datetime('now'))
+    INSERT INTO games (slug, title, image, description, file_size, version, download_url, magnet_url, categories, author, views, downloads_count, update_date, screenshots, system_requirements, trailer_url, comments, updated_at)
+    VALUES (@slug, @title, @image, @description, @file_size, @version, @download_url, @magnet_url, @categories, @author, 0, @downloads_count, @update_date, @screenshots, @system_requirements, @trailer_url, @comments, datetime('now'))
     ON CONFLICT(slug) DO UPDATE SET
-      title = @title, image = @image, description = @description, file_size = @file_size, version = @version, download_url = @download_url, magnet_url = @magnet_url, categories = @categories, author = @author, downloads_count = @downloads_count, update_date = @update_date, screenshots = @screenshots, system_requirements = @system_requirements, trailer_url = @trailer_url, updated_at = datetime('now')
+      title = @title, image = @image, description = @description, file_size = @file_size, version = @version, download_url = @download_url, magnet_url = @magnet_url, categories = @categories, author = @author, downloads_count = @downloads_count, update_date = @update_date, screenshots = @screenshots, system_requirements = @system_requirements, trailer_url = @trailer_url, comments = @comments, updated_at = datetime('now')
   `);
   return stmt.run(game);
 }

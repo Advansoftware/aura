@@ -6,6 +6,14 @@ import Link from 'next/link';
 import { ImageLightbox } from '@/components/ImageLightbox';
 import { getYouTubeId } from '@/lib/utils';
 
+interface GameComment {
+  author: string;
+  date: string;
+  content: string;
+  likes?: number;
+  replies?: GameComment[];
+}
+
 interface GameDetail {
   slug: string;
   title: string;
@@ -21,6 +29,45 @@ interface GameDetail {
   screenshots: string | null;
   system_requirements: string | null;
   trailer_url: string | null;
+  comments?: string | null;
+}
+
+function CommentNode({ comment, depth = 0 }: { comment: GameComment; depth?: number }) {
+  return (
+    <div className={`group relative flex flex-col gap-2 rounded-xl border border-white/5 bg-white/[0.02] p-4 transition-all duration-300 hover:border-[#00fe9b]/20 hover:bg-white/[0.03] ${depth > 0 ? 'ml-4 sm:ml-8 border-l-2 border-l-[#00fe9b]/30' : ''}`}>
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex items-center gap-2">
+          {/* Avatar com efeito neon sutil */}
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00fe9b]/20 to-[#00d668]/10 flex items-center justify-center border border-[#00fe9b]/30 text-xs font-semibold text-[#00fe9b] uppercase shadow-[0_0_8px_rgba(0,254,155,0.1)]">
+            {comment.author.substring(0, 2)}
+          </div>
+          <div>
+            <span className="text-sm font-semibold text-gray-200 group-hover:text-[#00fe9b] transition-colors">{comment.author}</span>
+            {comment.likes !== undefined && comment.likes > 0 && (
+              <span className="ml-2 px-1.5 py-0.5 text-[10px] font-medium text-[#00fe9b] bg-[#00fe9b]/10 border border-[#00fe9b]/20 rounded-full">
+                👍 {comment.likes}
+              </span>
+            )}
+          </div>
+        </div>
+        <span className="text-xs text-gray-500">{comment.date}</span>
+      </div>
+
+      <div 
+        className="text-xs sm:text-sm text-gray-400 leading-relaxed break-words prose prose-invert max-w-none 
+          prose-p:m-0 prose-a:text-[#00fe9b] prose-strong:text-gray-300"
+        dangerouslySetInnerHTML={{ __html: comment.content }}
+      />
+
+      {comment.replies && comment.replies.length > 0 && (
+        <div className="mt-3 space-y-3">
+          {comment.replies.map((reply, i) => (
+            <CommentNode key={i} comment={reply} depth={depth + 1} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function GameDetailPage() {
@@ -258,6 +305,45 @@ export default function GameDetailPage() {
                 </div>
               </section>
             )}
+
+            {/* Seção de Comentários e Dicas Importadas */}
+            {game.comments ? (
+              (() => {
+                try {
+                  const commentsList = JSON.parse(game.comments) as GameComment[];
+                  if (commentsList.length === 0) return null;
+                  return (
+                    <section className="mb-8 border-t border-white/5 pt-8">
+                      <div className="flex items-center gap-2 mb-4">
+                        <span className="text-xl">💬</span>
+                        <h2 className="text-lg font-semibold text-gray-200">
+                          Comentários e Dicas da Comunidade
+                        </h2>
+                        <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#00fe9b]/10 border border-[#00fe9b]/20 text-[#00fe9b] font-medium">
+                          {commentsList.length} originais
+                        </span>
+                      </div>
+                      
+                      <div className="text-xs text-gray-400 mb-6 leading-relaxed bg-white/[0.02] border border-white/5 rounded-xl p-4 flex gap-3 items-start">
+                        <span className="text-base mt-0.5">💡</span>
+                        <div>
+                          <p className="font-semibold text-gray-300 mb-0.5">Dica importante</p>
+                          <p>Estes comentários e instruções foram importados diretamente da comunidade do site original (Steam Verde) e servem como apoio de instalação, correções de bugs específicos e feedbacks sobre o funcionamento.</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        {commentsList.map((comment, i) => (
+                          <CommentNode key={i} comment={comment} />
+                        ))}
+                      </div>
+                    </section>
+                  );
+                } catch (e) {
+                  return null;
+                }
+              })()
+            ) : null}
           </div>
         </div>
       </div>

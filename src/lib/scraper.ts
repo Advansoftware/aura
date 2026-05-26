@@ -1,5 +1,6 @@
 import * as cheerio from 'cheerio';
 import { upsertGame, getLastScrapeTime, setLastScrapeTime, getGameBySlug, setScrapeMetaValue, getDb } from './db';
+import { GameComment } from '@/types/game';
 
 const BASE_URL = 'https://steamverde.net';
 
@@ -12,6 +13,73 @@ export async function fetchHTML(url: string): Promise<string> {
     },
   });
   return res.text();
+}
+
+export async function fetchCommentsHTML(postId: string, nonce: string, urlReferer: string): Promise<string> {
+  const res = await fetch('https://steamverde.net/wp-admin/admin-ajax.php', {
+    method: 'POST',
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+      'Referer': urlReferer,
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    body: new URLSearchParams({
+      action: 'get_comments',
+      post_id: postId,
+      nonce: nonce,
+      get: 'all',
+      order: 'likes'
+    }).toString()
+  });
+  return res.text();
+}
+
+function extractComments($: cheerio.CheerioAPI, containerSelector: string): GameComment[] {
+  const comments: GameComment[] = [];
+  
+  function parseCommentElement(li: cheerio.Element): GameComment | null {
+    const $li = $(li);
+    const commenterLink = $li.find('> .saic-comment > .saic-comment-content > .saic-comment-info a.saic-commenter-name');
+    const commenterSpan = $li.find('> .saic-comment > .saic-comment-content > .saic-comment-info span.saic-commenter-name');
+    
+    const author = commenterLink.length > 0 ? commenterLink.text().trim() : commenterSpan.text().trim();
+    const date = $li.find('> .saic-comment > .saic-comment-content > .saic-comment-info span.saic-comment-time').first().text().trim();
+    
+    const textEl = $li.find('> .saic-comment > .saic-comment-content > .saic-comment-text').first();
+    const content = textEl.html() ? textEl.html()!.trim() : textEl.text().trim();
+    
+    const likesAttr = $li.attr('data-likes');
+    const likes = likesAttr ? parseInt(likesAttr, 10) : 0;
+
+    if (!author && !content) return null;
+
+    const replies: GameComment[] = [];
+    $li.find('> ul.children > li.saic-item-comment, > ul > li.saic-item-comment').each((_, subLi) => {
+      const parsedSub = parseCommentElement(subLi);
+      if (parsedSub) {
+        replies.push(parsedSub);
+      }
+    });
+
+    return {
+      author: author || 'Anônimo',
+      date: date || 'Há algum tempo',
+      content: content || '',
+      likes,
+      replies: replies.length > 0 ? replies : undefined
+    };
+  }
+
+  const rootSelector = containerSelector === 'body' ? 'body > li.saic-item-comment' : `${containerSelector} > li.saic-item-comment`;
+  $(rootSelector).each((_, li) => {
+    const parsed = parseCommentElement(li);
+    if (parsed) {
+      comments.push(parsed);
+    }
+  });
+
+  return comments;
 }
 
 function extractSlugFromUrl(url: string): string {
@@ -147,6 +215,29 @@ export async function scrapeGameDetail(slug: string) {
 
   const trailerUrl = $('.wpdm-video-trailer-container iframe').attr('src') || null;
 
+  // Busca e processamento dos comentários da comunidade (Steam Verde)
+  let commentsJson: string | null = null;
+  try {
+    const postIdMatch = html.match(/saic-container-comment-(\d+)/) || html.match(/post_id=(\d+)/);
+    const postId = postIdMatch ? postIdMatch[1] : null;
+    
+    const saicNonceMatch = html.match(/"saicNonce":"([^"]+)"/);
+    const nonce = saicNonceMatch ? saicNonceMatch[1] : 'dcddcca4de';
+
+    if (postId) {
+      const commentsHtml = await fetchCommentsHTML(postId, nonce, url);
+      if (commentsHtml && commentsHtml.trim().length > 0) {
+        const $c = cheerio.load(commentsHtml);
+        const parsedComments = extractComments($c, 'body');
+        if (parsedComments.length > 0) {
+          commentsJson = JSON.stringify(parsedComments);
+        }
+      }
+    }
+  } catch (err) {
+    console.error(`Erro ao obter comentários para o jogo ${slug}:`, err);
+  }
+
   const game = {
     slug,
     title,
@@ -164,6 +255,7 @@ export async function scrapeGameDetail(slug: string) {
     screenshots: screenshots.length > 0 ? JSON.stringify(screenshots) : null,
     system_requirements: Object.keys(sysReqs).length > 0 ? JSON.stringify(sysReqs) : null,
     trailer_url: trailerUrl || null,
+    comments: commentsJson,
   };
 
   upsertGame(game);
