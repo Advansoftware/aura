@@ -122,14 +122,20 @@ export default function GameDetailPage() {
         <ImageLightbox images={screenshots} index={lightboxIndex} onClose={() => setLightboxIndex(null)} />
       )}
 
-      <div className="sticky top-0 z-40 bg-[#090b11]/85 backdrop-blur-md border-b border-white/5">
-        <div className="max-w-[1200px] mx-auto px-4 py-3 flex items-center gap-4">
-          <Link href="/" className="text-gray-400 hover:text-white transition-colors">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+      <div className="sticky top-0 z-40 bg-[#090b11]/90 backdrop-blur-md border-b border-white/5 shadow-[0_4px_30px_rgba(0,0,0,0.4)]">
+        <div className="max-w-[1200px] mx-auto px-4 py-3.5 flex items-center gap-4">
+          <Link 
+            href="/" 
+            className="group flex items-center justify-center w-10 h-10 rounded-xl bg-white/5 hover:bg-[#00fe9b]/10 border border-white/15 hover:border-[#00fe9b]/30 text-gray-300 hover:text-[#00fe9b] transition-all duration-300 shadow-md hover:shadow-[0_0_15px_rgba(0,254,155,0.15)] active:scale-95 cursor-pointer shrink-0"
+            title="Voltar à biblioteca"
+          >
+            <svg className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </Link>
-          <h1 className="text-lg font-semibold text-white truncate flex-1">{game.title}</h1>
+          <h1 className="text-lg sm:text-xl font-bold text-white truncate flex-1 tracking-tight drop-shadow-md select-none">
+            {game.title}
+          </h1>
         </div>
       </div>
 
