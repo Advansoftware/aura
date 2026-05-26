@@ -28,6 +28,7 @@ export default function AdminPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -175,10 +176,14 @@ export default function AdminPage() {
       const data = await res.json();
 
       if (res.ok) {
-        setPasswordSuccess('Senha alterada com sucesso!');
+        setPasswordSuccess('Senha alterada com sucesso! Fechando...');
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
+        setTimeout(() => {
+          setShowPasswordModal(false);
+          setPasswordSuccess(null);
+        }, 1500);
       } else {
         setPasswordError(data.error || 'Erro ao alterar a senha');
       }
@@ -287,6 +292,19 @@ export default function AdminPage() {
             <Link href="/" className="px-3 py-1.5 text-xs text-gray-400 hover:text-white transition-colors">
               Catálogo
             </Link>
+            <button
+              onClick={() => {
+                setPasswordError(null);
+                setPasswordSuccess(null);
+                setCurrentPassword('');
+                setNewPassword('');
+                setConfirmPassword('');
+                setShowPasswordModal(true);
+              }}
+              className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-gray-300 border border-[#00fe9b]/25 rounded-lg text-xs font-semibold transition-all cursor-pointer hover:border-[#00fe9b]/60 hover:text-[#00fe9b]"
+            >
+              Alterar Senha
+            </button>
             <button
               onClick={handleLogout}
               className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-lg text-xs font-semibold transition-all cursor-pointer"
@@ -452,93 +470,112 @@ export default function AdminPage() {
           </section>
         )}
 
-        {/* 3. Seção de Alterar Senha */}
-        {stats && (
-          <section className="bg-white/5 border border-white/5 rounded-2xl p-6 md:p-8 space-y-6">
-            <div>
-              <h2 className="text-xl font-bold text-white">Alterar Senha de Acesso</h2>
-              <p className="text-sm text-gray-400">Modifique a senha de entrada para este painel administrativo</p>
-            </div>
+        {/* Modal de Alteração de Senha flutuante */}
+        {showPasswordModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="w-full max-w-md bg-[#0c0e17] border border-white/10 rounded-2xl p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+              {/* Botão de Fechar */}
+              <button
+                onClick={() => setShowPasswordModal(false)}
+                className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors cursor-pointer"
+                aria-label="Fechar modal"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
 
-            <form onSubmit={handleChangePassword} className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-              <div>
-                <label htmlFor="curr-pass" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                  Senha Atual
-                </label>
-                <input
-                  id="curr-pass"
-                  type="password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder="Senha atual..."
-                  className="w-full px-4 py-2.5 bg-black/40 border border-white/10 hover:border-white/20 focus:border-[#00fe9b] rounded-xl text-white outline-none transition-all placeholder:text-gray-600 text-sm focus:shadow-[0_0_15px_rgba(0,254,155,0.15)]"
-                  required
-                  disabled={actionLoading}
-                />
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-white">Alterar Senha</h2>
+                <p className="text-xs text-gray-400 mt-1">Insira os dados abaixo para modificar a senha administrativa.</p>
               </div>
 
-              <div>
-                <label htmlFor="new-pass" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                  Nova Senha
-                </label>
-                <input
-                  id="new-pass"
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Mínimo 4 caracteres..."
-                  className="w-full px-4 py-2.5 bg-black/40 border border-white/10 hover:border-white/20 focus:border-[#00fe9b] rounded-xl text-white outline-none transition-all placeholder:text-gray-600 text-sm focus:shadow-[0_0_15px_rgba(0,254,155,0.15)]"
-                  required
-                  disabled={actionLoading}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="conf-pass" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                  Confirmar Nova Senha
-                </label>
-                <input
-                  id="conf-pass"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirme a nova senha..."
-                  className="w-full px-4 py-2.5 bg-black/40 border border-white/10 hover:border-white/20 focus:border-[#00fe9b] rounded-xl text-white outline-none transition-all placeholder:text-gray-600 text-sm focus:shadow-[0_0_15px_rgba(0,254,155,0.15)]"
-                  required
-                  disabled={actionLoading}
-                />
-              </div>
-
-              <div className="md:col-span-3 flex flex-col md:flex-row md:items-center justify-between gap-4 pt-2">
-                <div className="flex-1">
-                  {passwordError && (
-                    <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-400 font-medium">
-                      ⚠️ {passwordError}
-                    </div>
-                  )}
-                  {passwordSuccess && (
-                    <div className="p-3 bg-[#00fe9b]/10 border border-[#00fe9b]/20 rounded-xl text-xs text-[#00fe9b] font-medium">
-                      ✅ {passwordSuccess}
-                    </div>
-                  )}
+              <form onSubmit={handleChangePassword} className="space-y-4">
+                <div>
+                  <label htmlFor="curr-pass" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                    Senha Atual
+                  </label>
+                  <input
+                    id="curr-pass"
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder="Senha atual..."
+                    className="w-full px-4 py-2.5 bg-black/40 border border-white/10 hover:border-white/20 focus:border-[#00fe9b] rounded-xl text-white outline-none transition-all placeholder:text-gray-600 text-sm focus:shadow-[0_0_15px_rgba(0,254,155,0.15)]"
+                    required
+                    disabled={actionLoading}
+                  />
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={actionLoading}
-                  className="px-6 py-2.5 bg-[#00fe9b] hover:bg-[#00d668] text-black font-bold rounded-lg text-xs transition-all shadow-[0_0_10px_rgba(0,254,155,0.2)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed shrink-0 flex items-center justify-center gap-2"
-                >
-                  {actionLoading ? (
-                    <div className="w-4 h-4 border-2 border-black border-t-transparent animate-spin rounded-full" />
-                  ) : (
-                    'Salvar Nova Senha'
-                  )}
-                </button>
-              </div>
-            </form>
-          </section>
+                <div>
+                  <label htmlFor="new-pass" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                    Nova Senha
+                  </label>
+                  <input
+                    id="new-pass"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Mínimo 4 caracteres..."
+                    className="w-full px-4 py-2.5 bg-black/40 border border-white/10 hover:border-white/20 focus:border-[#00fe9b] rounded-xl text-white outline-none transition-all placeholder:text-gray-600 text-sm focus:shadow-[0_0_15px_rgba(0,254,155,0.15)]"
+                    required
+                    disabled={actionLoading}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="conf-pass" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                    Confirmar Nova Senha
+                  </label>
+                  <input
+                    id="conf-pass"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirme a nova senha..."
+                    className="w-full px-4 py-2.5 bg-black/40 border border-white/10 hover:border-white/20 focus:border-[#00fe9b] rounded-xl text-white outline-none transition-all placeholder:text-gray-600 text-sm focus:shadow-[0_0_15px_rgba(0,254,155,0.15)]"
+                    required
+                    disabled={actionLoading}
+                  />
+                </div>
+
+                {passwordError && (
+                  <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-400 font-medium text-center">
+                    ⚠️ {passwordError}
+                  </div>
+                )}
+
+                {passwordSuccess && (
+                  <div className="p-3 bg-[#00fe9b]/10 border border-[#00fe9b]/20 rounded-xl text-xs text-[#00fe9b] font-medium text-center">
+                    ✅ {passwordSuccess}
+                  </div>
+                )}
+
+                <div className="flex justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswordModal(false)}
+                    disabled={actionLoading}
+                    className="px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-semibold text-gray-300 hover:text-white transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={actionLoading}
+                    className="px-5 py-2.5 bg-[#00fe9b] hover:bg-[#00d668] text-black font-bold rounded-lg text-xs transition-all shadow-[0_0_10px_rgba(0,254,155,0.2)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {actionLoading ? (
+                      <div className="w-4 h-4 border-2 border-black border-t-transparent animate-spin rounded-full" />
+                    ) : (
+                      'Salvar Senha'
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         )}
-      </main>
     </div>
   );
 }
