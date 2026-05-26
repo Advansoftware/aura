@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { upsertGame, getLastScrapeTime, setLastScrapeTime, getGameBySlug } from './db';
+import { upsertGame, getLastScrapeTime, setLastScrapeTime, getGameBySlug, setScrapeMetaValue } from './db';
 
 const BASE_URL = 'https://steamverde.net';
 
@@ -172,27 +172,62 @@ export async function scrapeGameDetail(slug: string) {
 
 export async function scrapeAll(force = false) {
   console.log(`Starting scrape${force ? ' (forced)' : ''}...`);
-  const slugs = await scrapeGameList();
-  console.log(`Found ${slugs.length} games on site`);
+  
+  // Atualiza no banco que estamos iniciando a busca da lista
+  setScrapeMetaValue('sync_status', 'running');
+  setScrapeMetaValue('sync_current_game', 'Buscando lista de jogos do site original...');
+  setScrapeMetaValue('sync_progress_pct', '5');
+  setScrapeMetaValue('sync_processed_games', '0');
+  setScrapeMetaValue('sync_total_games', '0');
+  
+  try {
+    const slugs = await scrapeGameList();
+    console.log(`Found ${slugs.length} games on site`);
+    
+    setScrapeMetaValue('sync_total_games', String(slugs.length));
+    
+    let newCount = 0;
+    let processed = 0;
+    for (const slug of slugs) {
+      processed++;
+      
+      // Atualiza progresso do loop (calcula entre 5% e 95%)
+      const pct = Math.min(95, Math.round(5 + (processed / slugs.length) * 90));
+      setScrapeMetaValue('sync_processed_games', String(processed));
+      setScrapeMetaValue('sync_progress_pct', String(pct));
+      setScrapeMetaValue('sync_current_game', `Analisando: ${slug}`);
 
-  let newCount = 0;
-  for (const slug of slugs) {
-    const existing = getGameBySlug(slug);
-    if (!force && existing) continue;
+      const existing = getGameBySlug(slug);
+      if (!force && existing) {
+        continue;
+      }
 
-    try {
-      await scrapeGameDetail(slug);
-      newCount++;
-      console.log(`Scraped: ${slug}`);
-      await new Promise(r => setTimeout(r, 1000));
-    } catch (err) {
-      console.error(`Error scraping ${slug}:`, err);
+      try {
+        await scrapeGameDetail(slug);
+        newCount++;
+        console.log(`Scraped: ${slug}`);
+        await new Promise(r => setTimeout(r, 600)); // Pequena pausa
+      } catch (err) {
+        console.error(`Error scraping ${slug}:`, err);
+      }
     }
-  }
 
-  console.log(`Scraped ${newCount} games${force ? ' (all forced)' : ''}`);
-  setLastScrapeTime(new Date().toISOString());
-  return { total: slugs.length, new: newCount };
+    console.log(`Scraped ${newCount} games${force ? ' (all forced)' : ''}`);
+    setLastScrapeTime(new Date().toISOString());
+    
+    // Finaliza status como completo
+    setScrapeMetaValue('sync_status', 'completed');
+    setScrapeMetaValue('sync_progress_pct', '100');
+    setScrapeMetaValue('sync_current_game', `Concluído! ${newCount} novos jogos sincronizados.`);
+    
+    return { total: slugs.length, new: newCount };
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error('Erro geral no scrapeAll:', err);
+    setScrapeMetaValue('sync_status', 'failed');
+    setScrapeMetaValue('sync_last_error', errMsg);
+    throw err;
+  }
 }
 
 export async function scrapeIfNeeded(): Promise<boolean> {

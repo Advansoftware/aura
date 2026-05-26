@@ -163,3 +163,27 @@ export function getHeroGames(): Game[] {
     return d.prepare('SELECT * FROM games ORDER BY updated_at DESC LIMIT 6').all() as Game[];
   }
 }
+
+export function getAdminStats() {
+  const d = getDb();
+  const totalGames = (d.prepare('SELECT COUNT(*) as count FROM games').get() as { count: number }).count;
+  const totalViews = (d.prepare('SELECT SUM(views) as sum FROM games').get() as { sum: number }).sum || 0;
+  
+  const syncStatus = getScrapeMetaValue('sync_status') || 'idle';
+  const syncProgress = parseInt(getScrapeMetaValue('sync_progress_pct') || '0', 10);
+  const syncCurrentGame = getScrapeMetaValue('sync_current_game') || '';
+  const syncTotalGames = parseInt(getScrapeMetaValue('sync_total_games') || '0', 10);
+  const syncProcessedGames = parseInt(getScrapeMetaValue('sync_processed_games') || '0', 10);
+  const lastScrape = getLastScrapeTime();
+
+  return {
+    totalGames,
+    totalViews,
+    syncStatus,
+    syncProgress,
+    syncCurrentGame,
+    syncTotalGames,
+    syncProcessedGames,
+    lastScrape,
+  };
+}
