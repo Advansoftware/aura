@@ -25,12 +25,25 @@ function stripHtml(html: string | null): string {
   return text;
 }
 
+function getYouTubeId(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+}
+
+function getYouTubeEmbedUrl(videoId: string): string {
+  return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&playsinline=1&rel=0&showinfo=0&modestbranding=1&iv_load_policy=3&enablejsapi=1`;
+}
+
 export default function HomePage() {
   const [games, setGames] = useState<Game[]>([]);
   const [heroGames, setHeroGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [lastScrape, setLastScrape] = useState<string | null>(null);
+  const [activeTrailerId, setActiveTrailerId] = useState<string | null>(null);
+  const [showVideo, setShowVideo] = useState(false);
   const heroIntervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
 
   const fetchGames = useCallback(async (searchQuery?: string) => {
@@ -60,15 +73,45 @@ export default function HomePage() {
 
   const [heroIndex, setHeroIndex] = useState(0);
 
+  // Hook para gerenciar a rotação do carrossel (pausa se o trailer estiver rodando)
   useEffect(() => {
-    if (heroGames.length === 0) return;
+    if (heroGames.length === 0 || activeTrailerId !== null) {
+      if (heroIntervalRef.current) {
+        clearInterval(heroIntervalRef.current);
+        heroIntervalRef.current = undefined;
+      }
+      return;
+    }
     heroIntervalRef.current = setInterval(() => {
       setHeroIndex(prev => (prev + 1) % heroGames.length);
-    }, 5000);
+    }, 6000);
     return () => {
       if (heroIntervalRef.current) clearInterval(heroIntervalRef.current);
     };
-  }, [heroGames.length]);
+  }, [heroGames.length, activeTrailerId]);
+
+  // Hook para gerenciar a contagem regressiva e início do trailer do destaque atual
+  useEffect(() => {
+    setActiveTrailerId(null);
+    setShowVideo(false);
+    
+    if (heroGames.length === 0) return;
+    const currentGame = heroGames[heroIndex];
+    if (!currentGame || !currentGame.trailer_url) return;
+
+    const videoId = getYouTubeId(currentGame.trailer_url);
+    if (!videoId) return;
+
+    // Aguarda 3 segundos de exibição estática antes de iniciar o trailer
+    const timer = setTimeout(() => {
+      setActiveTrailerId(videoId);
+      setShowVideo(true);
+    }, 3000);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [heroIndex, heroGames]);
 
   return (
     <div className="min-h-screen">
@@ -121,12 +164,29 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-r from-[#090b11] via-[#090b11]/70 to-transparent z-10" />
                 <div className="absolute inset-0 bg-black/20 z-10" />
 
+                {/* Imagem de Fundo com Transição Cinematográfica */}
                 {g.image && (
                   <img
                     src={g.image}
                     alt={g.title}
-                    className="w-full h-full object-cover object-[center_20%] transition-transform duration-[8000ms] ease-out scale-105"
+                    className={`w-full h-full object-cover object-[center_20%] transition-all duration-[2000ms] ease-out z-0 ${
+                      i === heroIndex && showVideo ? 'opacity-30 scale-100 blur-[2px]' : 'scale-105 opacity-100'
+                    }`}
                   />
+                )}
+
+                {/* Iframe do Trailer de Background no Estilo Netflix */}
+                {i === heroIndex && activeTrailerId && (
+                  <div className={`absolute inset-0 w-full h-full overflow-hidden pointer-events-none transition-opacity duration-1000 z-[5] ${
+                    showVideo ? 'opacity-100' : 'opacity-0'
+                  }`}>
+                    <iframe
+                      src={getYouTubeEmbedUrl(activeTrailerId)}
+                      className="absolute top-1/2 left-1/2 w-[100vw] h-[56.25vw] min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover scale-[1.35] pointer-events-none"
+                      allow="autoplay; encrypted-media; picture-in-picture"
+                      frameBorder="0"
+                    />
+                  </div>
                 )}
 
                 <div className="absolute inset-x-0 bottom-0 z-20 pb-12 md:pb-16 px-6 sm:px-12 md:px-16 max-w-[1600px] mx-auto">

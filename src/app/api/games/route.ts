@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
       magnet_url: g.magnet_url,
       categories: g.categories,
       views: g.views,
+      trailer_url: g.trailer_url,
       updated_at: g.updated_at,
     });
 
