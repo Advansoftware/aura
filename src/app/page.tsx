@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { GameGrid } from '@/components/GameGrid';
 import { SearchBar } from '@/components/SearchBar';
 import Link from 'next/link';
+import { Footer } from '@/components/Footer';
 import { Game } from '@/types/game';
 
 function stripHtml(html: string | null): string {
@@ -26,6 +27,7 @@ function stripHtml(html: string | null): string {
 
 export default function HomePage() {
   const [games, setGames] = useState<Game[]>([]);
+  const [heroGames, setHeroGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [lastScrape, setLastScrape] = useState<string | null>(null);
@@ -38,6 +40,7 @@ export default function HomePage() {
       const res = await fetch(url);
       const data = await res.json();
       setGames(data.games || []);
+      setHeroGames(data.heroGames || (data.games ? data.games.slice(0, 6) : []));
       setLastScrape(data.lastScrape || null);
     } catch (err) {
       console.error('Failed to fetch games:', err);
@@ -55,7 +58,6 @@ export default function HomePage() {
     fetchGames(q || undefined);
   };
 
-  const heroGames = games.slice(0, 6);
   const [heroIndex, setHeroIndex] = useState(0);
 
   useEffect(() => {
@@ -292,6 +294,7 @@ export default function HomePage() {
           </div>
         )}
       </main>
+      <Footer />
     </div>
   );
 }

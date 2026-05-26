@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllGames, getGamesPaginated, searchGames, getLastScrapeTime, Game } from '@/lib/db';
+import { getAllGames, getGamesPaginated, searchGames, getLastScrapeTime, getHeroGames, Game } from '@/lib/db';
 
 export async function GET(request: NextRequest) {
   try {
@@ -38,6 +38,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       games: games.map(mapGame),
+      heroGames: getHeroGames().map(mapGame),
       total,
       page,
       totalPages: Math.max(1, Math.ceil(total / limit)),

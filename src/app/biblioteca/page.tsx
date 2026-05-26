@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { GameGrid } from '@/components/GameGrid';
 import { SearchBar } from '@/components/SearchBar';
 import Link from 'next/link';
+import { Footer } from '@/components/Footer';
 import { Game } from '@/types/game';
 
 export default function BibliotecaPage() {
@@ -141,6 +142,7 @@ export default function BibliotecaPage() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }
