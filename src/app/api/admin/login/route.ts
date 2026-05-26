@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getScrapeMetaValue } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
   try {
     const { password } = await request.json();
-    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    const savedPassword = getScrapeMetaValue('admin_password');
+    const adminPassword = savedPassword || process.env.ADMIN_PASSWORD || 'admin123';
 
     if (password === adminPassword) {
       const response = NextResponse.json({ success: true, message: 'Autenticado com sucesso!' });

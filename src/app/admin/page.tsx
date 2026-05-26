@@ -21,6 +21,14 @@ export default function AdminPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<AdminStats | null>(null);
+  
+  // Estados para troca de senha
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
+
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Verifica se o usuário já possui sessão ativa ao carregar a página
@@ -143,6 +151,42 @@ export default function AdminPage() {
     stopPolling();
     setIsLogged(false);
     setStats(null);
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError(null);
+    setPasswordSuccess(null);
+    setActionLoading(true);
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('A nova senha e a confirmação não conferem!');
+      setActionLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/admin/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setPasswordSuccess('Senha alterada com sucesso!');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        setPasswordError(data.error || 'Erro ao alterar a senha');
+      }
+    } catch (err) {
+      setPasswordError('Falha de conexão com o servidor');
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   if (initialLoading) {
@@ -405,6 +449,93 @@ export default function AdminPage() {
                 </div>
               )}
             </div>
+          </section>
+        )}
+
+        {/* 3. Seção de Alterar Senha */}
+        {stats && (
+          <section className="bg-white/5 border border-white/5 rounded-2xl p-6 md:p-8 space-y-6">
+            <div>
+              <h2 className="text-xl font-bold text-white">Alterar Senha de Acesso</h2>
+              <p className="text-sm text-gray-400">Modifique a senha de entrada para este painel administrativo</p>
+            </div>
+
+            <form onSubmit={handleChangePassword} className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+              <div>
+                <label htmlFor="curr-pass" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                  Senha Atual
+                </label>
+                <input
+                  id="curr-pass"
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder="Senha atual..."
+                  className="w-full px-4 py-2.5 bg-black/40 border border-white/10 hover:border-white/20 focus:border-[#00fe9b] rounded-xl text-white outline-none transition-all placeholder:text-gray-600 text-sm focus:shadow-[0_0_15px_rgba(0,254,155,0.15)]"
+                  required
+                  disabled={actionLoading}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="new-pass" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                  Nova Senha
+                </label>
+                <input
+                  id="new-pass"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Mínimo 4 caracteres..."
+                  className="w-full px-4 py-2.5 bg-black/40 border border-white/10 hover:border-white/20 focus:border-[#00fe9b] rounded-xl text-white outline-none transition-all placeholder:text-gray-600 text-sm focus:shadow-[0_0_15px_rgba(0,254,155,0.15)]"
+                  required
+                  disabled={actionLoading}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="conf-pass" className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                  Confirmar Nova Senha
+                </label>
+                <input
+                  id="conf-pass"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirme a nova senha..."
+                  className="w-full px-4 py-2.5 bg-black/40 border border-white/10 hover:border-white/20 focus:border-[#00fe9b] rounded-xl text-white outline-none transition-all placeholder:text-gray-600 text-sm focus:shadow-[0_0_15px_rgba(0,254,155,0.15)]"
+                  required
+                  disabled={actionLoading}
+                />
+              </div>
+
+              <div className="md:col-span-3 flex flex-col md:flex-row md:items-center justify-between gap-4 pt-2">
+                <div className="flex-1">
+                  {passwordError && (
+                    <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-400 font-medium">
+                      ⚠️ {passwordError}
+                    </div>
+                  )}
+                  {passwordSuccess && (
+                    <div className="p-3 bg-[#00fe9b]/10 border border-[#00fe9b]/20 rounded-xl text-xs text-[#00fe9b] font-medium">
+                      ✅ {passwordSuccess}
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={actionLoading}
+                  className="px-6 py-2.5 bg-[#00fe9b] hover:bg-[#00d668] text-black font-bold rounded-lg text-xs transition-all shadow-[0_0_10px_rgba(0,254,155,0.2)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed shrink-0 flex items-center justify-center gap-2"
+                >
+                  {actionLoading ? (
+                    <div className="w-4 h-4 border-2 border-black border-t-transparent animate-spin rounded-full" />
+                  ) : (
+                    'Salvar Nova Senha'
+                  )}
+                </button>
+              </div>
+            </form>
           </section>
         )}
       </main>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getGameBySlug } from '@/lib/db';
+import { getGameBySlug, incrementGameViews } from '@/lib/db';
 import { scrapeGameDetail } from '@/lib/scraper';
 
 export async function GET(
@@ -19,7 +19,13 @@ export async function GET(
       }
     }
 
-    return NextResponse.json({ game });
+    // Incrementa visualização real local no nosso banco
+    incrementGameViews(slug);
+
+    // Retorna o jogo com a visualização local já incrementada
+    const updatedGame = getGameBySlug(slug) || game;
+
+    return NextResponse.json({ game: updatedGame });
   } catch (err) {
     console.error('Error in GET /api/game/[slug]:', err);
     return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 });

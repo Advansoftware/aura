@@ -52,6 +52,13 @@ function initDb() {
   
   // Remoção preventiva do launcher dos assinantes, pois não é um jogo
   db!.prepare("DELETE FROM games WHERE slug = 'steam-verde-launcher-assinantes'").run();
+
+  // Reseta as views antigas importadas do site original apenas uma única vez
+  const row = db!.prepare("SELECT value FROM scrape_meta WHERE key = 'views_reseted_to_local'").get() as { value: string } | undefined;
+  if (!row?.value) {
+    db!.prepare('UPDATE games SET views = 0').run();
+    db!.prepare("INSERT OR REPLACE INTO scrape_meta (key, value) VALUES ('views_reseted_to_local', 'true')").run();
+  }
 }
 
 export function closeDb() {
@@ -67,11 +74,16 @@ export function upsertGame(game: Omit<Game, 'id' | 'created_at' | 'updated_at'>)
   const d = getDb();
   const stmt = d.prepare(`
     INSERT INTO games (slug, title, image, description, file_size, version, download_url, magnet_url, categories, author, views, downloads_count, update_date, screenshots, system_requirements, trailer_url, updated_at)
-    VALUES (@slug, @title, @image, @description, @file_size, @version, @download_url, @magnet_url, @categories, @author, @views, @downloads_count, @update_date, @screenshots, @system_requirements, @trailer_url, datetime('now'))
+    VALUES (@slug, @title, @image, @description, @file_size, @version, @download_url, @magnet_url, @categories, @author, 0, @downloads_count, @update_date, @screenshots, @system_requirements, @trailer_url, datetime('now'))
     ON CONFLICT(slug) DO UPDATE SET
-      title = @title, image = @image, description = @description, file_size = @file_size, version = @version, download_url = @download_url, magnet_url = @magnet_url, categories = @categories, author = @author, views = @views, downloads_count = @downloads_count, update_date = @update_date, screenshots = @screenshots, system_requirements = @system_requirements, trailer_url = @trailer_url, updated_at = datetime('now')
+      title = @title, image = @image, description = @description, file_size = @file_size, version = @version, download_url = @download_url, magnet_url = @magnet_url, categories = @categories, author = @author, downloads_count = @downloads_count, update_date = @update_date, screenshots = @screenshots, system_requirements = @system_requirements, trailer_url = @trailer_url, updated_at = datetime('now')
   `);
   return stmt.run(game);
+}
+
+export function incrementGameViews(slug: string) {
+  const d = getDb();
+  d.prepare('UPDATE games SET views = views + 1 WHERE slug = ?').run(slug);
 }
 
 export function getAllGames(): Game[] {
