@@ -35,8 +35,7 @@ yarn-debug.log*
 # compiled scripts (rebuilt in container)
 dist-scripts/
 
-# docker itself
-docker/
+# docker build artifacts (not the docker/ dir itself)
 Dockerfile
 docker-compose.yml
 .dockerignore

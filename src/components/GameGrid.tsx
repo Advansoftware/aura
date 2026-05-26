@@ -1,15 +1,7 @@
 'use client';
 
+import { Game } from '@/types/game';
 import { GameCard } from './GameCard';
-
-interface Game {
-  slug: string;
-  title: string;
-  image: string | null;
-  file_size: string | null;
-  version: string | null;
-  categories: string | null;
-}
 
 export function GameGrid({ games }: { games: Game[] }) {
   return (

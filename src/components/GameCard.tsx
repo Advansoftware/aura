@@ -2,17 +2,7 @@
 
 import { useState, MouseEvent } from 'react';
 import Link from 'next/link';
-
-interface Game {
-  slug: string;
-  title: string;
-  image: string | null;
-  file_size: string | null;
-  version: string | null;
-  download_url: string | null;
-  magnet_url: string | null;
-  categories: string | null;
-}
+import { Game } from '@/types/game';
 
 export function GameCard({ game }: { game: Game }) {
   const [imgError, setImgError] = useState(false);

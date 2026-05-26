@@ -4,19 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { GameGrid } from '@/components/GameGrid';
 import { SearchBar } from '@/components/SearchBar';
 import Link from 'next/link';
-
-interface Game {
-  slug: string;
-  title: string;
-  image: string | null;
-  description: string | null;
-  file_size: string | null;
-  version: string | null;
-  download_url: string | null;
-  magnet_url: string | null;
-  categories: string | null;
-  updated_at?: string;
-}
+import { Game } from '@/types/game';
 
 function stripHtml(html: string | null): string {
   if (!html) return '';

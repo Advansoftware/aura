@@ -4,9 +4,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { GameGrid } from '@/components/GameGrid';
 import { SearchBar } from '@/components/SearchBar';
 import Link from 'next/link';
+import { Game } from '@/types/game';
 
 export default function BibliotecaPage() {
-  const [games, setGames] = useState<any[]>([]);
+  const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);

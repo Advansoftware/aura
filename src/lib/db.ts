@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3';
 import path from 'path';
+import { Game } from '@/types/game';
 
 const DB_PATH = path.join(process.cwd(), 'data', 'steamverde.db');
 
@@ -57,27 +58,7 @@ export function closeDb() {
   }
 }
 
-export interface Game {
-  id?: number;
-  slug: string;
-  title: string;
-  image: string | null;
-  description: string | null;
-  file_size: string | null;
-  version: string | null;
-  download_url: string | null;
-  magnet_url: string | null;
-  categories: string | null;
-  author: string | null;
-  views: number | null;
-  downloads_count: number | null;
-  update_date: string | null;
-  screenshots: string | null;
-  system_requirements: string | null;
-  trailer_url: string | null;
-  created_at?: string;
-  updated_at?: string;
-}
+export type { Game };
 
 export function upsertGame(game: Omit<Game, 'id' | 'created_at' | 'updated_at'>) {
   const d = getDb();
