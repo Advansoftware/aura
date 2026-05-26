@@ -6,6 +6,7 @@ import { SearchBar } from '@/components/SearchBar';
 import Link from 'next/link';
 import { Footer } from '@/components/Footer';
 import { Game } from '@/types/game';
+import { getYouTubeId } from '@/lib/utils';
 
 function stripHtml(html: string | null): string {
   if (!html) return '';
@@ -23,13 +24,6 @@ function stripHtml(html: string | null): string {
     return text.substring(0, 297) + '...';
   }
   return text;
-}
-
-function getYouTubeId(url: string | null | undefined): string | null {
-  if (!url) return null;
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-  const match = url.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : null;
 }
 
 function getYouTubeEmbedUrl(videoId: string): string {

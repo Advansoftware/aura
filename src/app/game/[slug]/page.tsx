@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ImageLightbox } from '@/components/ImageLightbox';
+import { getYouTubeId } from '@/lib/utils';
 
 interface GameDetail {
   slug: string;
@@ -186,6 +187,22 @@ export default function GameDetailPage() {
                     dangerouslySetInnerHTML={{ __html: game.description }}
                   />
                 )}
+              </section>
+            )}
+
+            {/* Trailer Oficial do Jogo */}
+            {game.trailer_url && getYouTubeId(game.trailer_url) && (
+              <section className="mb-8">
+                <h2 className="text-lg font-semibold text-gray-200 mb-3">Trailer Oficial</h2>
+                <div className="aspect-video w-full rounded-xl overflow-hidden bg-white/5 border border-white/5 shadow-2xl relative">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${getYouTubeId(game.trailer_url)}?autoplay=0&rel=0&modestbranding=1`}
+                    className="absolute inset-0 w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    frameBorder="0"
+                  />
+                </div>
               </section>
             )}
 
