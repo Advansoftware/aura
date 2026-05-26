@@ -10,6 +10,10 @@ export function GameCard({ game }: { game: Game }) {
   const categoryList = game.categories?.split(',').filter(Boolean) || [];
   const mainCategory = categoryList[0] || 'jogo';
 
+  const isHypervisor = game.title.toLowerCase().includes('hypervisor') || 
+                       game.slug.toLowerCase().includes('hypervisor') ||
+                       game.categories?.toLowerCase().includes('hypervisor') || false;
+
   const handleQuickDownload = (e: MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -74,9 +78,16 @@ export function GameCard({ game }: { game: Game }) {
 
         {/* Rodapé de Informações */}
         <div className="p-3 bg-gradient-to-b from-white/[0.02] to-transparent">
-          <span className="inline-block px-2 py-0.5 text-xs font-semibold text-[#00fe9b] bg-[#00fe9b]/10 rounded-md mb-2 uppercase tracking-wider select-none">
-            {mainCategory}
-          </span>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="inline-block px-2 py-0.5 text-xs font-semibold text-[#00fe9b] bg-[#00fe9b]/10 rounded-md uppercase tracking-wider select-none">
+              {mainCategory}
+            </span>
+            {isHypervisor && (
+              <span className="inline-block px-2 py-0.5 rounded-[4px] text-[9px] font-black bg-[#ff003c] text-white tracking-wider uppercase shadow-[0_0_8px_rgba(255,0,60,0.3)] shrink-0 select-none">
+                HYPERVISOR
+              </span>
+            )}
+          </div>
           <h3 className="text-sm font-semibold text-gray-100 line-clamp-2 leading-snug group-hover:text-[#00fe9b] transition-colors duration-300">
             {game.title}
           </h3>

@@ -112,6 +112,10 @@ export default function GameDetailPage() {
   const requirements: Record<string, string> = game.system_requirements ? JSON.parse(game.system_requirements) : {};
   const categoryList = game.categories?.split(',').filter(Boolean) || [];
 
+  const isHypervisor = game.title.toLowerCase().includes('hypervisor') || 
+                       game.slug.toLowerCase().includes('hypervisor') ||
+                       game.categories?.toLowerCase().includes('hypervisor') || false;
+
   return (
     <div className="min-h-screen">
       {lightboxIndex !== null && (
@@ -205,10 +209,33 @@ export default function GameDetailPage() {
                   ))}
                 </div>
               )}
+
+              {isHypervisor && (
+                <div className="mt-3 px-3 py-2 text-xs font-black bg-[#ff003c] text-white rounded-lg flex items-center justify-center gap-1.5 shadow-[0_0_8px_rgba(255,0,60,0.3)] uppercase tracking-wider select-none">
+                  HYPERVISOR
+                </div>
+              )}
             </div>
           </div>
 
           <div className="flex-1 min-w-0">
+            {isHypervisor && (
+              <div className="mb-6 p-4 rounded-xl border border-[#ffd700]/20 bg-gradient-to-r from-[#ffd700]/5 via-transparent to-transparent flex gap-3 items-start backdrop-blur-sm shadow-[0_0_15px_rgba(255,215,0,0.02)]">
+                <span className="text-xl shrink-0">⚠️</span>
+                <div className="space-y-1.5">
+                  <p className="text-sm font-bold text-[#ffd700] uppercase tracking-wider">Aviso Especial: Launcher Hypervisor Requerido</p>
+                  <p className="text-xs text-gray-300 leading-relaxed">
+                    Este jogo utiliza uma tecnologia de virtualização personalizada para inicialização e funcionamento. Certifique-se de seguir os requisitos abaixo para rodar o jogo com sucesso:
+                  </p>
+                  <ul className="list-disc pl-4 text-xs text-gray-400 space-y-1 mt-1">
+                    <li>Habilite a <span className="font-semibold text-gray-200">Virtualização (VT-x na Intel ou AMD-V na AMD)</span> diretamente nas configurações de BIOS da sua placa-mãe.</li>
+                    <li>O recurso de Hypervisor do Windows (como Hyper-V e isolamento de núcleo) pode ser requerido ou necessitar de ajuste.</li>
+                    <li>Sistemas de antivírus costumam acusar falso positivo devido à virtualização. Pode ser necessário criar exclusão para a pasta do jogo.</li>
+                    <li>Confira as dicas detalhadas de instalação e funcionamento fornecidas pela comunidade na seção de <span className="text-[#00fe9b] font-medium">Comentários</span> no rodapé desta página.</li>
+                  </ul>
+                </div>
+              </div>
+            )}
             {game.description && (
               <section className="mb-8">
                 <h2 className="text-lg font-semibold text-gray-200 mb-3">Descrição</h2>
@@ -222,9 +249,23 @@ export default function GameDetailPage() {
                     />
                     <button
                       onClick={() => setDescExpanded(!descExpanded)}
-                      className="mt-2 text-sm text-[#00fe9b] hover:underline font-medium cursor-pointer"
+                      className="w-full mt-3 py-2.5 px-4 text-xs font-semibold text-[#00fe9b] bg-[#00fe9b]/5 hover:bg-[#00fe9b]/10 border border-[#00fe9b]/15 hover:border-[#00fe9b]/30 rounded-lg transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.005] active:scale-[0.995] select-none"
                     >
-                      {descExpanded ? 'Ver menos' : 'Ver mais'}
+                      {descExpanded ? (
+                        <>
+                          Ver menos
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+                          </svg>
+                        </>
+                      ) : (
+                        <>
+                          Ver mais
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </>
+                      )}
                     </button>
                   </div>
                 ) : (
