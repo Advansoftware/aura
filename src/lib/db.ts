@@ -49,6 +49,9 @@ function initDb() {
       value TEXT
     );
   `);
+  
+  // Remoção preventiva do launcher dos assinantes, pois não é um jogo
+  db!.prepare("DELETE FROM games WHERE slug = 'steam-verde-launcher-assinantes'").run();
 }
 
 export function closeDb() {
@@ -132,4 +135,31 @@ export function getScrapeMetaValue(key: string): string | null {
 export function setScrapeMetaValue(key: string, value: string) {
   const d = getDb();
   d.prepare('INSERT OR REPLACE INTO scrape_meta (key, value) VALUES (?, ?)').run(key, value);
+}
+
+export function getHeroGames(): Game[] {
+  const d = getDb();
+  const heroSlugsJson = getScrapeMetaValue('hero_slugs');
+  if (!heroSlugsJson) {
+    return d.prepare('SELECT * FROM games ORDER BY updated_at DESC LIMIT 6').all() as Game[];
+  }
+  try {
+    const slugs = JSON.parse(heroSlugsJson) as string[];
+    const games: Game[] = [];
+    for (const slug of slugs) {
+      const g = getGameBySlug(slug);
+      if (g) games.push(g);
+    }
+    if (games.length < 3) {
+      const recents = d.prepare('SELECT * FROM games ORDER BY updated_at DESC LIMIT 6').all() as Game[];
+      for (const r of recents) {
+        if (!games.some(g => g.slug === r.slug)) {
+          games.push(r);
+        }
+      }
+    }
+    return games.slice(0, 6);
+  } catch (e) {
+    return d.prepare('SELECT * FROM games ORDER BY updated_at DESC LIMIT 6').all() as Game[];
+  }
 }

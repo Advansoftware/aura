@@ -19,6 +19,7 @@ import {
 import {
   scrapeGameList,
   scrapeGameDetail,
+  scrapeHeroSlugs,
 } from '../src/lib/scraper';
 
 const TARGET_DURATION_MS = 60 * 60 * 1000; // 60 minutos (meta, não limite)
@@ -63,6 +64,17 @@ async function run(): Promise<void> {
   log('🌙 Iniciando scraping noturno inteligente...');
   setScrapeMetaValue('nightly_scrape_start', new Date().toISOString());
 
+  // 0. Buscar e salvar slugs em destaque do Hero Section deles
+  log('🔥 Coletando jogos em destaque do Hero Section...');
+  let heroSlugs: string[] = [];
+  try {
+    heroSlugs = await scrapeHeroSlugs();
+    log(`🔥 Jogos em destaque no Hero: [${heroSlugs.join(', ')}]`);
+    setScrapeMetaValue('hero_slugs', JSON.stringify(heroSlugs));
+  } catch (err) {
+    log(`⚠️ Erro ao coletar hero slugs: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
   // 1. Buscar lista completa de slugs do site
   log('📋 Buscando lista completa de jogos no site...');
   let siteSlugs: string[];
@@ -84,10 +96,11 @@ async function run(): Promise<void> {
   const incompleteSlugs = incompleteGames.map(g => g.slug);
   log(`🔧 Jogos incompletos encontrados: ${incompleteSlugs.length}`);
 
-  // 4. Montar fila de prioridade: novos primeiro, depois incompletos
+  // 4. Montar fila de prioridade: 1º Hero Section, 2º Novos, 3º Incompletos
   const queue: string[] = [
-    ...newSlugs,
-    ...incompleteSlugs.filter(slug => !newSlugs.includes(slug)),
+    ...heroSlugs,
+    ...newSlugs.filter(slug => !heroSlugs.includes(slug)),
+    ...incompleteSlugs.filter(slug => !newSlugs.includes(slug) && !heroSlugs.includes(slug)),
   ];
 
   if (queue.length === 0) {

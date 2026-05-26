@@ -19,6 +19,26 @@ function extractSlugFromUrl(url: string): string {
   return match ? match[1] : '';
 }
 
+export async function scrapeHeroSlugs(): Promise<string[]> {
+  try {
+    const html = await fetchHTML(BASE_URL);
+    const slugs: string[] = [];
+    const regex = /\/download\/([^/"']+)/g;
+    let m;
+    while ((m = regex.exec(html)) !== null) {
+      const slug = m[1];
+      if (slug && slug !== 'steam-verde-launcher-assinantes' && !slugs.includes(slug)) {
+        slugs.push(slug);
+        if (slugs.length >= 6) break;
+      }
+    }
+    return slugs;
+  } catch (e) {
+    console.error('Erro ao buscar hero slugs:', e);
+    return [];
+  }
+}
+
 export async function scrapeGameList(): Promise<string[]> {
   const slugs: string[] = [];
 
@@ -30,8 +50,9 @@ export async function scrapeGameList(): Promise<string[]> {
     let m;
     let found = 0;
     while ((m = regex.exec(html)) !== null) {
-      if (m[1] && !slugs.includes(m[1])) {
-        slugs.push(m[1]);
+      const slug = m[1];
+      if (slug && slug !== 'steam-verde-launcher-assinantes' && !slugs.includes(slug)) {
+        slugs.push(slug);
         found++;
       }
     }
