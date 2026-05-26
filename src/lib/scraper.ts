@@ -1,4 +1,5 @@
 import * as cheerio from 'cheerio';
+import type { AnyNode } from 'domhandler';
 import { upsertGame, getLastScrapeTime, setLastScrapeTime, getGameBySlug, setScrapeMetaValue, getDb } from './db';
 import { GameComment } from '@/types/game';
 
@@ -38,7 +39,7 @@ export async function fetchCommentsHTML(postId: string, nonce: string, urlRefere
 function extractComments($: cheerio.CheerioAPI, containerSelector: string): GameComment[] {
   const comments: GameComment[] = [];
   
-  function parseCommentElement(li: cheerio.Element): GameComment | null {
+  function parseCommentElement(li: AnyNode): GameComment | null {
     const $li = $(li);
     const commenterLink = $li.find('> .saic-comment > .saic-comment-content > .saic-comment-info a.saic-commenter-name');
     const commenterSpan = $li.find('> .saic-comment > .saic-comment-content > .saic-comment-info span.saic-commenter-name');
