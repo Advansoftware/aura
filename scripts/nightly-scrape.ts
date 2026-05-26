@@ -5,8 +5,8 @@
  * 1. Lista todos os slugs disponíveis no site
  * 2. Identifica jogos NOVOS (não existem no banco) e INCOMPLETOS (faltam dados)
  * 3. Prioriza novos, depois incompletos
- * 4. Faz scraping com delays aleatórios de 15-90s entre cada jogo
- * 5. Respeita uma janela máxima de ~60 minutos
+ * 4. Calcula delay dinâmico para encaixar tudo em ~60 minutos
+ * 5. Processa TODOS os jogos da fila (sem corte de tempo)
  * 6. Registra logs detalhados
  */
 
@@ -21,13 +21,9 @@ import {
   scrapeGameDetail,
 } from '../src/lib/scraper';
 
-const MAX_DURATION_MS = 60 * 60 * 1000; // 60 minutos
-const MIN_DELAY_MS = 15_000; // 15 segundos
-const MAX_DELAY_MS = 90_000; // 90 segundos
-
-function randomDelay(): number {
-  return Math.floor(Math.random() * (MAX_DELAY_MS - MIN_DELAY_MS + 1)) + MIN_DELAY_MS;
-}
+const TARGET_DURATION_MS = 60 * 60 * 1000; // 60 minutos (meta, não limite)
+const MIN_DELAY_MS = 3_000;  // delay mínimo de 3s (proteção contra bloqueio)
+const MAX_DELAY_MS = 120_000; // delay máximo de 2min (se poucos jogos na fila)
 
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -36,6 +32,30 @@ function sleep(ms: number): Promise<void> {
 function log(message: string): void {
   const timestamp = new Date().toISOString();
   console.log(`[${timestamp}] ${message}`);
+}
+
+/**
+ * Calcula o delay entre cada jogo para distribuir o scraping
+ * ao longo de ~60 minutos. Adiciona variação aleatória de ±30%
+ * para parecer tráfego orgânico.
+ */
+function calculateDelay(totalGames: number): number {
+  if (totalGames <= 1) return 0;
+
+  // Tempo base por jogo: meta de 60min dividido pela quantidade
+  // Subtrai ~3s por jogo como tempo estimado de scraping
+  const estimatedScrapeTimePerGame = 3_000;
+  const availableDelayTime = TARGET_DURATION_MS - (totalGames * estimatedScrapeTimePerGame);
+  const baseDelay = Math.max(MIN_DELAY_MS, availableDelayTime / (totalGames - 1));
+
+  // Adiciona variação aleatória de ±30%
+  const variation = 0.3;
+  const min = baseDelay * (1 - variation);
+  const max = baseDelay * (1 + variation);
+  const randomized = Math.floor(Math.random() * (max - min + 1)) + min;
+
+  // Clamp entre MIN e MAX
+  return Math.min(MAX_DELAY_MS, Math.max(MIN_DELAY_MS, randomized));
 }
 
 async function run(): Promise<void> {
@@ -80,23 +100,23 @@ async function run(): Promise<void> {
 
   log(`📦 Total na fila de atualização: ${queue.length} jogos`);
 
-  // 5. Processar fila com delays aleatórios e limite de tempo
+  // Calcular delay estimado
+  const estimatedDelay = calculateDelay(queue.length);
+  const estimatedTotalMin = Math.ceil((queue.length * (estimatedDelay + 3_000)) / 60_000);
+  log(`⏱️  Delay estimado entre jogos: ~${(estimatedDelay / 1000).toFixed(0)}s`);
+  log(`⏱️  Tempo total estimado: ~${estimatedTotalMin} minutos`);
+
+  // 5. Processar TODA a fila com delays dinâmicos
   let processed = 0;
   let errors = 0;
 
-  for (const slug of queue) {
-    // Verificar se atingiu o tempo máximo
-    const elapsed = Date.now() - startTime;
-    if (elapsed >= MAX_DURATION_MS) {
-      log(`⏰ Tempo máximo de ${MAX_DURATION_MS / 60_000} minutos atingido. Parando.`);
-      break;
-    }
-
-    const timeRemaining = Math.floor((MAX_DURATION_MS - elapsed) / 60_000);
+  for (let i = 0; i < queue.length; i++) {
+    const slug = queue[i];
+    const elapsed = Math.floor((Date.now() - startTime) / 60_000);
     const isNew = newSlugs.includes(slug);
 
     try {
-      log(`🎮 [${processed + 1}/${queue.length}] ${isNew ? '🆕' : '🔧'} Processando: ${slug} (${timeRemaining}min restantes)`);
+      log(`🎮 [${i + 1}/${queue.length}] ${isNew ? '🆕' : '🔧'} Processando: ${slug} (${elapsed}min decorridos)`);
       await scrapeGameDetail(slug);
       processed++;
       log(`✅ Sucesso: ${slug}`);
@@ -105,9 +125,9 @@ async function run(): Promise<void> {
       log(`❌ Erro ao processar ${slug}: ${err instanceof Error ? err.message : String(err)}`);
     }
 
-    // Delay aleatório antes do próximo
-    if (queue.indexOf(slug) < queue.length - 1) {
-      const delay = randomDelay();
+    // Delay dinâmico antes do próximo (exceto no último)
+    if (i < queue.length - 1) {
+      const delay = calculateDelay(queue.length);
       log(`⏳ Aguardando ${(delay / 1000).toFixed(0)}s antes do próximo...`);
       await sleep(delay);
     }
@@ -119,10 +139,10 @@ async function run(): Promise<void> {
   log(`   ⏱️  Duração total: ${totalElapsed} minutos`);
   log(`   ✅ Processados com sucesso: ${processed}`);
   log(`   ❌ Erros: ${errors}`);
-  log(`   📦 Restantes na fila: ${queue.length - processed - errors}`);
+  log(`   📦 Total na fila original: ${queue.length}`);
 
   setScrapeMetaValue('nightly_scrape_end', new Date().toISOString());
-  setScrapeMetaValue('nightly_scrape_result', `processed=${processed},errors=${errors},remaining=${queue.length - processed - errors}`);
+  setScrapeMetaValue('nightly_scrape_result', `processed=${processed},errors=${errors},duration=${totalElapsed}min`);
   setLastScrapeTime(new Date().toISOString());
 }
 
