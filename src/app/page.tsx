@@ -290,6 +290,31 @@ export default function HomePage() {
             );
           })}
 
+          {/* Botões de Navegação Lateral (Anterior / Próximo) */}
+          {heroGames.length > 1 && (
+            <>
+              <button
+                onClick={() => setHeroIndex(prev => (prev - 1 + heroGames.length) % heroGames.length)}
+                className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-30 flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/30 hover:bg-black/60 border border-white/10 hover:border-[#00fe9b]/50 text-gray-400 hover:text-[#00fe9b] backdrop-blur-md transition-all duration-300 cursor-pointer shadow-lg hover:shadow-[0_0_20px_rgba(0,254,155,0.2)] group active:scale-90"
+                aria-label="Slide anterior"
+              >
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+
+              <button
+                onClick={() => setHeroIndex(prev => (prev + 1) % heroGames.length)}
+                className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-30 flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/30 hover:bg-black/60 border border-white/10 hover:border-[#00fe9b]/50 text-gray-400 hover:text-[#00fe9b] backdrop-blur-md transition-all duration-300 cursor-pointer shadow-lg hover:shadow-[0_0_20px_rgba(0,254,155,0.2)] group active:scale-90"
+                aria-label="Próximo slide"
+              >
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </>
+          )}
+
           {/* Barrinhas Horizontais de Carrossel Netflix */}
           <div className="absolute bottom-6 right-8 z-20 flex gap-2">
             {heroGames.map((_, i) => (
