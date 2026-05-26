@@ -31,21 +31,21 @@ crond -b -l 2
 
 echo "✅ Cron daemon iniciado em background"
 
-# Verificar se o banco está vazio e fazer scrape inicial se necessário
+# Verificar se o banco de dados tem jogos cadastrados de forma ultra-confiável
 DB_FILE="/app/data/steamverde.db"
 NEED_INITIAL_SCRAPE=false
 
 if [ ! -f "$DB_FILE" ]; then
   NEED_INITIAL_SCRAPE=true
 else
-  DB_SIZE=$(stat -c%s "$DB_FILE" 2>/dev/null || echo "0")
-  if [ "$DB_SIZE" -lt 4096 ]; then
+  # Executa uma verificação rápida no banco de dados para checar se existem registros na tabela games
+  if ! node -e "try { const db = require('better-sqlite3')('$DB_FILE'); const r = db.prepare('SELECT COUNT(*) as c FROM games').get(); process.exit(r && r.c > 0 ? 0 : 1); } catch(e) { process.exit(1); }" 2>/dev/null; then
     NEED_INITIAL_SCRAPE=true
   fi
 fi
 
 if [ "$NEED_INITIAL_SCRAPE" = true ]; then
-  echo "🆕 Banco de dados vazio detectado. Executando scrape inicial em background..."
+  echo "🆕 Banco de dados vazio ou sem jogos detectado. Executando scrape inicial em background..."
   (cd /app && node /app/dist-scripts/scripts/nightly-scrape.js >> /var/log/nightly-scrape.log 2>&1) &
   echo "🔄 Scrape inicial rodando em background (PID: $!)"
 fi
