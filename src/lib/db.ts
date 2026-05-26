@@ -122,3 +122,33 @@ export function setLastScrapeTime(time: string) {
   const d = getDb();
   d.prepare("INSERT OR REPLACE INTO scrape_meta (key, value) VALUES ('last_scrape', ?)").run(time);
 }
+
+export function getAllSlugs(): string[] {
+  const d = getDb();
+  const rows = d.prepare('SELECT slug FROM games').all() as Array<{ slug: string }>;
+  return rows.map(r => r.slug);
+}
+
+export function getIncompleteGames(): Game[] {
+  const d = getDb();
+  return d.prepare(`
+    SELECT * FROM games
+    WHERE description IS NULL
+       OR description = ''
+       OR screenshots IS NULL
+       OR magnet_url IS NULL
+       OR image IS NULL
+    ORDER BY updated_at ASC
+  `).all() as Game[];
+}
+
+export function getScrapeMetaValue(key: string): string | null {
+  const d = getDb();
+  const row = d.prepare('SELECT value FROM scrape_meta WHERE key = ?').get(key) as { value: string } | undefined;
+  return row?.value || null;
+}
+
+export function setScrapeMetaValue(key: string, value: string) {
+  const d = getDb();
+  d.prepare('INSERT OR REPLACE INTO scrape_meta (key, value) VALUES (?, ?)').run(key, value);
+}

@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllGames, getGamesPaginated, searchGames, getLastScrapeTime, Game } from '@/lib/db';
-import { scrapeIfNeeded } from '@/lib/scraper';
 
 export async function GET(request: NextRequest) {
   try {
-    scrapeIfNeeded().catch(err => console.error('Background scrape failed:', err));
 
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q');

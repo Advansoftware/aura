@@ -41,6 +41,9 @@ yarn-error.log*
 /downloads/
 /installed/
 
+# compiled scripts
+/dist-scripts/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

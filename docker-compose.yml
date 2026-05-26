@@ -1,0 +1,16 @@
+services:
+  aura:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aura
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+      - TZ=America/Sao_Paulo
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
