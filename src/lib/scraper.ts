@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { upsertGame, getLastScrapeTime, setLastScrapeTime, getGameBySlug, setScrapeMetaValue } from './db';
+import { upsertGame, getLastScrapeTime, setLastScrapeTime, getGameBySlug, setScrapeMetaValue, getDb } from './db';
 
 const BASE_URL = 'https://steamverde.net';
 
@@ -185,6 +185,21 @@ export async function scrapeAll(force = false) {
     console.log(`Found ${slugs.length} games on site`);
     
     setScrapeMetaValue('sync_total_games', String(slugs.length));
+
+    // Sincroniza e ordena todos os jogos locais de acordo com a ordem exata do site original
+    try {
+      const d = getDb();
+      const updateStmt = d.prepare("UPDATE games SET updated_at = datetime('now', ?) WHERE slug = ?");
+      const updateTransaction = d.transaction((slugList: string[]) => {
+        for (let i = 0; i < slugList.length; i++) {
+          updateStmt.run(`-${i} seconds`, slugList[i]);
+        }
+      });
+      updateTransaction(slugs);
+      console.log("Ordem de catálogo (updated_at) sincronizada perfeitamente com o site original!");
+    } catch (e) {
+      console.error("Falha ao sincronizar ordenação dos jogos:", e);
+    }
     
     let newCount = 0;
     let processed = 0;
