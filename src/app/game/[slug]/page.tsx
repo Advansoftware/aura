@@ -43,18 +43,18 @@ export default function GameDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a1a] flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-[#e94560] border-t-transparent rounded-full" />
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-2 border-[#00fe9b] border-t-transparent rounded-full" />
       </div>
     );
   }
 
   if (!game) {
     return (
-      <div className="min-h-screen bg-[#0a0a1a] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-gray-400 text-lg">Jogo não encontrado</p>
-          <Link href="/" className="text-[#e94560] hover:underline mt-2 inline-block">Voltar à biblioteca</Link>
+          <Link href="/" className="text-[#00fe9b] hover:underline mt-2 inline-block">Voltar à biblioteca</Link>
         </div>
       </div>
     );
@@ -65,12 +65,12 @@ export default function GameDetailPage() {
   const categoryList = game.categories?.split(',').filter(Boolean) || [];
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a]">
+    <div className="min-h-screen">
       {lightboxIndex !== null && (
         <ImageLightbox images={screenshots} index={lightboxIndex} onClose={() => setLightboxIndex(null)} />
       )}
 
-      <div className="sticky top-0 z-40 bg-[#0a0a1a]/95 backdrop-blur-sm border-b border-[#16213e]">
+      <div className="sticky top-0 z-40 bg-[#090b11]/85 backdrop-blur-md border-b border-white/5">
         <div className="max-w-[1200px] mx-auto px-4 py-3 flex items-center gap-4">
           <Link href="/" className="text-gray-400 hover:text-white transition-colors">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -84,13 +84,13 @@ export default function GameDetailPage() {
       <div className="max-w-[1200px] mx-auto px-4 py-6">
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="lg:w-80 shrink-0">
-            <div className="aspect-[3/4] rounded-lg overflow-hidden bg-[#1a1a2e] border border-[#16213e]">
+            <div className="aspect-[3/4] rounded-xl overflow-hidden bg-white/5 border border-white/5">
               {game.image ? (
                 <img src={game.image} alt={game.title} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-600">
                   <svg className="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l-3.197 2.132a1 1 0 000-1.664z" />
                   </svg>
                 </div>
               )}
@@ -100,7 +100,7 @@ export default function GameDetailPage() {
               {game.magnet_url ? (
                 <button
                   onClick={() => window.open(game.magnet_url!, '_blank')}
-                  className="w-full py-3 px-4 bg-[#e94560] hover:bg-[#d63851] text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-3 px-4 bg-[#00fe9b] hover:bg-[#00d668] text-black font-semibold rounded-lg shadow-[0_0_12px_rgba(0,254,155,0.3)] transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -112,7 +112,7 @@ export default function GameDetailPage() {
                   href={game.download_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-3 px-4 bg-[#e94560] hover:bg-[#d63851] text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-3 px-4 bg-[#00fe9b] hover:bg-[#00d668] text-black font-semibold rounded-lg shadow-[0_0_12px_rgba(0,254,155,0.3)] transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -121,7 +121,7 @@ export default function GameDetailPage() {
                 </a>
               ) : null}
 
-              <div className="bg-[#1a1a2e] border border-[#16213e] rounded-lg p-4 space-y-2">
+              <div className="bg-white/5 border border-white/5 rounded-xl p-4 space-y-2">
                 {game.file_size && (
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Tamanho</span>
@@ -151,7 +151,7 @@ export default function GameDetailPage() {
               {categoryList.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {categoryList.map(cat => (
-                    <span key={cat} className="px-2.5 py-1 text-xs font-medium text-[#e94560] bg-[#e94560]/10 rounded-full capitalize">
+                    <span key={cat} className="px-2.5 py-1 text-xs font-medium text-[#00fe9b] bg-[#00fe9b]/10 rounded-full capitalize">
                       {cat.replace(/-/g, ' ')}
                     </span>
                   ))}
@@ -168,13 +168,13 @@ export default function GameDetailPage() {
                   <div>
                     <div
                       className={`text-sm text-gray-400 leading-relaxed prose prose-invert max-w-none
-                        prose-headings:text-gray-200 prose-a:text-[#e94560] prose-strong:text-gray-300
+                        prose-headings:text-gray-200 prose-a:text-[#00fe9b] prose-strong:text-gray-300
                         ${descExpanded ? '' : 'line-clamp-4'}`}
                       dangerouslySetInnerHTML={{ __html: game.description }}
                     />
                     <button
                       onClick={() => setDescExpanded(!descExpanded)}
-                      className="mt-2 text-sm text-[#e94560] hover:underline font-medium"
+                      className="mt-2 text-sm text-[#00fe9b] hover:underline font-medium cursor-pointer"
                     >
                       {descExpanded ? 'Ver menos' : 'Ver mais'}
                     </button>
@@ -182,7 +182,7 @@ export default function GameDetailPage() {
                 ) : (
                   <div
                     className="text-sm text-gray-400 leading-relaxed prose prose-invert max-w-none
-                      prose-headings:text-gray-200 prose-a:text-[#e94560] prose-strong:text-gray-300"
+                      prose-headings:text-gray-200 prose-a:text-[#00fe9b] prose-strong:text-gray-300"
                     dangerouslySetInnerHTML={{ __html: game.description }}
                   />
                 )}
@@ -195,7 +195,7 @@ export default function GameDetailPage() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {screenshots.map((src, i) => (
                     <button key={i} onClick={() => setLightboxIndex(i)}
-                      className="aspect-video rounded-lg overflow-hidden bg-[#1a1a2e] border border-[#16213e] hover:border-[#e94560] transition-colors cursor-pointer text-left">
+                      className="aspect-video rounded-xl overflow-hidden bg-white/5 border border-white/5 hover:border-[#00fe9b] transition-all cursor-pointer text-left">
                       <img src={src} alt={`Imagem ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
                     </button>
                   ))}
@@ -206,7 +206,7 @@ export default function GameDetailPage() {
             {Object.keys(requirements).length > 0 && (
               <section className="mb-8">
                 <h2 className="text-lg font-semibold text-gray-200 mb-3">Requisitos do Sistema</h2>
-                <div className="bg-[#1a1a2e] border border-[#16213e] rounded-lg p-4">
+                <div className="bg-white/5 border border-white/5 rounded-xl p-4">
                   <div className="space-y-2">
                     {Object.entries(requirements).map(([key, val]) => (
                       <div key={key} className="flex gap-2 text-sm">
@@ -222,18 +222,18 @@ export default function GameDetailPage() {
             {game.magnet_url && (
               <section className="mb-8">
                 <h2 className="text-lg font-semibold text-gray-200 mb-3">Link Magnético</h2>
-                <div className="bg-[#1a1a2e] border border-[#16213e] rounded-lg p-3">
+                <div className="bg-white/5 border border-white/5 rounded-xl p-3">
                   <p className="text-xs text-gray-500 break-all mb-3">{game.magnet_url}</p>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => navigator.clipboard.writeText(game.magnet_url!)}
-                      className="px-4 py-2 text-sm font-medium text-white bg-[#16213e] hover:bg-[#1a2744] border border-[#0f3460] rounded-lg transition-colors"
+                      className="px-4 py-2 text-sm font-medium text-white bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all cursor-pointer"
                     >
                       Copiar link
                     </button>
                     <button
                       onClick={() => window.open(game.magnet_url!, '_blank')}
-                      className="px-4 py-2 text-sm font-medium text-white bg-[#e94560] hover:bg-[#d63851] rounded-lg transition-colors"
+                      className="px-4 py-2 text-sm font-medium text-black bg-[#00fe9b] hover:bg-[#00d668] rounded-lg shadow-[0_0_10px_rgba(0,254,155,0.3)] transition-all cursor-pointer"
                     >
                       Abrir torrent
                     </button>

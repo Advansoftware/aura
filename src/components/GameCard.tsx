@@ -24,14 +24,14 @@ export function GameCard({ game }: { game: Game }) {
 
   return (
     <Link href={`/game/${game.slug}`} className="group block">
-      <div className="relative overflow-hidden rounded-lg bg-[#1a1a2e] border border-[#16213e] transition-all duration-500 hover:border-[#e94560]/40 hover:shadow-[0_0_22px_rgba(233,69,96,0.18)] hover:-translate-y-1.5">
+      <div className="relative overflow-hidden rounded-xl bg-white/5 border border-white/5 transition-all duration-500 hover:border-[#00fe9b]/30 hover:shadow-[0_0_25px_rgba(0,254,155,0.12)] hover:-translate-y-1.5 backdrop-blur-md">
         
         {/* Container da Imagem com Aspect Ratio */}
-        <div className="relative aspect-[3/4] overflow-hidden bg-[#0d0d1a]">
+        <div className="relative aspect-[3/4] overflow-hidden bg-[#0d0d1a]/50">
           
           {/* Pílula de Tamanho do Jogo */}
           {game.file_size && (
-            <div className="absolute top-2 left-2 z-20 px-2 py-0.5 text-[10px] font-bold text-gray-200 bg-black/75 backdrop-blur-md border border-white/10 rounded shadow-md select-none">
+            <div className="absolute top-2 left-2 z-20 px-2 py-0.5 text-[10px] font-bold text-gray-200 bg-black/75 backdrop-blur-md border border-white/10 rounded-md shadow-md select-none">
               {game.file_size}
             </div>
           )}
@@ -41,7 +41,7 @@ export function GameCard({ game }: { game: Game }) {
             <button
               onClick={handleQuickDownload}
               title={game.magnet_url ? "Baixar via Torrent Rápido" : "Baixar Jogo"}
-              className="absolute top-2 right-2 z-20 p-2 text-white bg-[#e94560] hover:bg-[#d63851] rounded-full shadow-lg transition-all duration-300 md:opacity-0 md:group-hover:opacity-100 md:translate-y-[-4px] md:group-hover:translate-y-0 scale-90 hover:scale-105 cursor-pointer border border-white/10"
+              className="absolute top-2 right-2 z-20 p-2 text-black bg-[#00fe9b] hover:bg-[#00d668] rounded-full shadow-[0_0_12px_rgba(0,254,155,0.4)] transition-all duration-300 md:opacity-0 md:group-hover:opacity-100 md:translate-y-[-4px] md:group-hover:translate-y-0 scale-90 hover:scale-105 cursor-pointer border border-white/10"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -60,7 +60,7 @@ export function GameCard({ game }: { game: Game }) {
                 loading="lazy"
               />
               {/* Vinheta/Sombra na base da imagem */}
-              <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-black/70 to-transparent z-10 pointer-events-none" />
+              <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-black/80 to-transparent z-10 pointer-events-none" />
             </>
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-600">
@@ -73,22 +73,22 @@ export function GameCard({ game }: { game: Game }) {
         </div>
 
         {/* Rodapé de Informações */}
-        <div className="p-3 bg-gradient-to-b from-[#1a1a2e] to-[#121224]">
-          <span className="inline-block px-2 py-0.5 text-xs font-semibold text-[#e94560] bg-[#e94560]/10 rounded mb-2 uppercase tracking-wider select-none">
+        <div className="p-3 bg-gradient-to-b from-white/[0.02] to-transparent">
+          <span className="inline-block px-2 py-0.5 text-xs font-semibold text-[#00fe9b] bg-[#00fe9b]/10 rounded-md mb-2 uppercase tracking-wider select-none">
             {mainCategory}
           </span>
-          <h3 className="text-sm font-semibold text-gray-100 line-clamp-2 leading-snug group-hover:text-[#e94560] transition-colors duration-300">
+          <h3 className="text-sm font-semibold text-gray-100 line-clamp-2 leading-snug group-hover:text-[#00fe9b] transition-colors duration-300">
             {game.title}
           </h3>
           <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
             {game.version && (
               <span className="flex items-center gap-1">
-                <span className="text-gray-600 font-bold">v</span>
+                <span className="text-[#00fe9b] font-bold">v</span>
                 {game.version}
               </span>
             )}
             {game.file_size && (
-              <span className="text-[10px] text-gray-500 font-medium px-1 border border-gray-800 rounded select-none">
+              <span className="text-[10px] text-gray-500 font-medium px-1 border border-white/5 rounded select-none">
                 MÍDIA
               </span>
             )}

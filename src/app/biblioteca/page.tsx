@@ -44,8 +44,8 @@ export default function BibliotecaPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a]">
-      <div className="sticky top-0 z-40 bg-[#0a0a1a]/95 backdrop-blur-sm border-b border-[#16213e]">
+    <div className="min-h-screen">
+      <div className="sticky top-0 z-40 bg-[#090b11]/85 backdrop-blur-md border-b border-white/5">
         <div className="max-w-[1600px] mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link href="/" className="text-gray-400 hover:text-white transition-colors">
@@ -72,10 +72,10 @@ export default function BibliotecaPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4">
             {Array.from({ length: 14 }).map((_, i) => (
               <div key={i} className="animate-pulse">
-                <div className="aspect-[3/4] bg-[#1a1a2e] rounded-lg" />
+                <div className="aspect-[3/4] bg-white/5 border border-white/5 rounded-lg animate-pulse" />
                 <div className="mt-2 space-y-2">
-                  <div className="h-3 bg-[#1a1a2e] rounded w-3/4" />
-                  <div className="h-3 bg-[#1a1a2e] rounded w-1/2" />
+                  <div className="h-3 bg-white/5 rounded w-3/4 animate-pulse" />
+                  <div className="h-3 bg-white/5 rounded w-1/2 animate-pulse" />
                 </div>
               </div>
             ))}
@@ -88,7 +88,7 @@ export default function BibliotecaPage() {
                 <button
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={page <= 1}
-                  className="px-4 py-2 bg-[#16213e] border border-[#0f3460] rounded-lg text-sm text-gray-300 hover:text-white hover:border-[#e94560] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-gray-300 hover:text-white hover:border-[#00fe9b]/50 hover:bg-white/10 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 >
                   Anterior
                 </button>
@@ -108,10 +108,10 @@ export default function BibliotecaPage() {
                       <button
                         key={p}
                         onClick={() => setPage(p)}
-                        className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${
+                        className={`w-9 h-9 rounded-lg text-sm font-medium transition-all ${
                           p === page
-                            ? 'bg-[#e94560] text-white'
-                            : 'bg-[#16213e] text-gray-400 hover:text-white hover:bg-[#1a2744]'
+                            ? 'bg-[#00fe9b] text-black font-semibold shadow-[0_0_10px_rgba(0,254,155,0.3)]'
+                            : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 border border-white/5 cursor-pointer'
                         }`}
                       >
                         {p}
@@ -122,7 +122,7 @@ export default function BibliotecaPage() {
                 <button
                   onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                   disabled={page >= totalPages}
-                  className="px-4 py-2 bg-[#16213e] border border-[#0f3460] rounded-lg text-sm text-gray-300 hover:text-white hover:border-[#e94560] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-gray-300 hover:text-white hover:border-[#00fe9b]/50 hover:bg-white/10 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 >
                   Próximo
                 </button>

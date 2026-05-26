@@ -33,7 +33,7 @@ export function SearchBar({ onSearch, initialQuery = '' }: SearchBarProps) {
         value={query}
         onChange={e => setQuery(e.target.value)}
         placeholder="Buscar jogos..."
-        className="w-full pl-10 pr-4 py-2.5 bg-[#16213e] border border-[#0f3460] rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:border-[#e94560] focus:ring-1 focus:ring-[#e94560]/30 transition-colors text-sm"
+        className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/5 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:border-[#00fe9b]/50 focus:ring-1 focus:ring-[#00fe9b]/20 transition-all text-sm backdrop-blur-sm"
       />
       {query && (
         <button

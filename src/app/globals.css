@@ -1,7 +1,12 @@
 @import "tailwindcss";
 
 body {
-  font-family: inherit;
+  color: #f5ffff;
+  background: radial-gradient(circle at 50% -20%, #00fe9b12 0%, #090b11 60%), #090b11;
+  background-attachment: fixed;
+  font-family: "Inter", "system-ui", "-apple-system", sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
 @layer utilities {
@@ -15,29 +20,30 @@ body {
 
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0a1a;
+  background: #090b11;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #16213e;
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #0f3460;
+  background: #00fe9b;
 }
 
 .prose-invert {
   --tw-prose-body: #9ca3af;
   --tw-prose-headings: #e5e7eb;
-  --tw-prose-links: #e94560;
+  --tw-prose-links: #00fe9b;
   --tw-prose-bold: #d1d5db;
-  --tw-prose-code: #e94560;
+  --tw-prose-code: #00fe9b;
   --tw-prose-quotes: #9ca3af;
-  --tw-prose-quote-borders: #16213e;
+  --tw-prose-quote-borders: #1f2937;
 }
 
 @keyframes pulse {

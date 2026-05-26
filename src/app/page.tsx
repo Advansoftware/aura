@@ -69,16 +69,19 @@ export default function HomePage() {
   }, [heroGames.length]);
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a]">
-      <div className="sticky top-0 z-40 bg-[#0a0a1a]/95 backdrop-blur-sm border-b border-[#16213e]">
+    <div className="min-h-screen">
+      <div className="sticky top-0 z-40 bg-[#090b11]/85 backdrop-blur-md border-b border-white/5">
         <div className="max-w-[1600px] mx-auto px-4 py-3">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <svg className="w-8 h-8 text-[#e94560]" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-              </svg>
-              <h1 className="text-xl font-bold text-white tracking-tight">
-                <span className="text-[#e94560]">Aura</span>
+              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-tr from-[#00fe9b] to-[#00a852] text-black shadow-[0_0_15px_rgba(0,254,155,0.4)]">
+                <svg className="w-5 h-5 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 21l3.593-1.632A11.962 11.962 0 0012 19c1.66 0 3.238-.34 4.678-1.004L20 21l-.813-5.096A11.97 11.97 0 0021.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12c0 1.439.32 2.798.887 4.016z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 0v4m0-4h-2m2 0h2" />
+                </svg>
+              </div>
+              <h1 className="text-xl font-bold tracking-tight text-white select-none">
+                RespondiA <span className="text-[#00fe9b]">Games</span>
               </h1>
             </div>
 
@@ -86,7 +89,7 @@ export default function HomePage() {
               <SearchBar onSearch={handleSearch} />
               <Link
                 href="/biblioteca"
-                className="flex items-center gap-2 px-3 py-2 bg-[#16213e] hover:bg-[#1a2744] border border-[#0f3460] rounded-lg text-sm text-gray-300 hover:text-white transition-colors"
+                className="flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm text-gray-300 hover:text-white transition-all shadow-sm"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -111,9 +114,9 @@ export default function HomePage() {
                   i === heroIndex ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none z-0'
                 }`}
               >
-                {/* Netflix Gradient Overlays */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a] via-[#0a0a1a]/50 to-transparent z-10" />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a1a] via-[#0a0a1a]/70 to-transparent z-10" />
+                {/* Netflix Gradient Overlays with RespondiA background color */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#090b11] via-[#090b11]/50 to-transparent z-10" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#090b11] via-[#090b11]/70 to-transparent z-10" />
                 <div className="absolute inset-0 bg-black/20 z-10" />
 
                 {g.image && (
@@ -126,13 +129,13 @@ export default function HomePage() {
 
                 <div className="absolute inset-x-0 bottom-0 z-20 pb-12 md:pb-16 px-6 sm:px-12 md:px-16 max-w-[1600px] mx-auto">
                   <div className="max-w-3xl">
-                    {/* Badge Netflix-style */}
+                    {/* Badge RespondiA-style */}
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="flex items-center justify-center bg-[#e94560] text-white font-black text-[10px] w-5 h-5 rounded shadow-sm">
-                        A
+                      <span className="flex items-center justify-center bg-[#00fe9b] text-black font-black text-[10px] w-5 h-5 rounded-md shadow-[0_0_10px_rgba(0,254,155,0.4)]">
+                        R
                       </span>
-                      <span className="text-xs font-bold tracking-[0.3em] text-[#e94560] uppercase drop-shadow-md">
-                        Original Aura
+                      <span className="text-xs font-bold tracking-[0.3em] text-[#00fe9b] uppercase drop-shadow-md">
+                        Exclusivo RespondiA
                       </span>
                     </div>
 
@@ -143,7 +146,7 @@ export default function HomePage() {
 
                     {/* Metadados */}
                     <div className="flex flex-wrap items-center gap-3 text-sm mb-4">
-                      <span className="font-bold text-[#46d369] drop-shadow-sm">
+                      <span className="font-bold text-[#00fe9b] drop-shadow-sm">
                         {relevance}% de Relevância
                       </span>
                       <span className="text-gray-300 font-semibold">
@@ -178,7 +181,7 @@ export default function HomePage() {
                       {g.magnet_url ? (
                         <button
                           onClick={() => window.open(g.magnet_url!, '_blank')}
-                          className="px-6 py-2.5 bg-white text-black font-bold rounded hover:bg-white/80 transition-colors inline-flex items-center gap-2 text-sm md:text-base shadow-lg cursor-pointer"
+                          className="px-6 py-2.5 bg-[#00fe9b] text-black hover:bg-[#00d668] font-bold rounded-lg transition-all inline-flex items-center gap-2 text-sm md:text-base shadow-[0_0_15px_rgba(0,254,155,0.3)] hover:scale-105 active:scale-95 cursor-pointer"
                         >
                           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -190,7 +193,7 @@ export default function HomePage() {
                           href={g.download_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-6 py-2.5 bg-white text-black font-bold rounded hover:bg-white/80 transition-colors inline-flex items-center gap-2 text-sm md:text-base shadow-lg cursor-pointer"
+                          className="px-6 py-2.5 bg-[#00fe9b] text-black hover:bg-[#00d668] font-bold rounded-lg transition-all inline-flex items-center gap-2 text-sm md:text-base shadow-[0_0_15px_rgba(0,254,155,0.3)] hover:scale-105 active:scale-95 cursor-pointer"
                         >
                           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -200,7 +203,7 @@ export default function HomePage() {
                       ) : (
                         <Link
                           href={`/game/${g.slug}`}
-                          className="px-6 py-2.5 bg-white text-black font-bold rounded hover:bg-white/80 transition-colors inline-flex items-center gap-2 text-sm md:text-base shadow-lg cursor-pointer"
+                          className="px-6 py-2.5 bg-[#00fe9b] text-black hover:bg-[#00d668] font-bold rounded-lg transition-all inline-flex items-center gap-2 text-sm md:text-base shadow-[0_0_15px_rgba(0,254,155,0.3)] hover:scale-105 active:scale-95 cursor-pointer"
                         >
                           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -211,7 +214,7 @@ export default function HomePage() {
 
                       <Link
                         href={`/game/${g.slug}`}
-                        className="px-6 py-2.5 bg-gray-500/30 hover:bg-gray-500/40 text-white font-bold rounded transition-colors inline-flex items-center gap-2 text-sm md:text-base border border-white/10 backdrop-blur-sm shadow-lg cursor-pointer"
+                        className="px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white font-bold rounded-lg transition-all inline-flex items-center gap-2 text-sm md:text-base border border-white/10 backdrop-blur-sm shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
                       >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -232,7 +235,7 @@ export default function HomePage() {
                 key={i}
                 onClick={() => setHeroIndex(i)}
                 className={`h-[3px] rounded-full transition-all duration-300 cursor-pointer ${
-                  i === heroIndex ? 'bg-[#e94560] w-8' : 'bg-gray-600 hover:bg-gray-400 w-4'
+                  i === heroIndex ? 'bg-[#00fe9b] w-8 shadow-[0_0_10px_rgba(0,254,155,0.4)]' : 'bg-gray-600 hover:bg-gray-400 w-4'
                 }`}
               />
             ))}
@@ -267,10 +270,10 @@ export default function HomePage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4">
             {Array.from({ length: 14 }).map((_, i) => (
               <div key={i} className="animate-pulse">
-                <div className="aspect-[3/4] bg-[#1a1a2e] rounded-lg" />
+                <div className="aspect-[3/4] bg-white/5 border border-white/5 rounded-lg animate-pulse" />
                 <div className="mt-2 space-y-2">
-                  <div className="h-3 bg-[#1a1a2e] rounded w-3/4" />
-                  <div className="h-3 bg-[#1a1a2e] rounded w-1/2" />
+                  <div className="h-3 bg-white/5 rounded w-3/4 animate-pulse" />
+                  <div className="h-3 bg-white/5 rounded w-1/2 animate-pulse" />
                 </div>
               </div>
             ))}
